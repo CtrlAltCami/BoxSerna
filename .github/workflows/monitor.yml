@@ -23,7 +23,7 @@ jobs:
           curl -sL --max-time 30 -A "Mozilla/5.0" -o page.html "$URL" || exit 0
           [ -s page.html ] || exit 0
 
-          if grep -q "No tenemos destinos disponibles" page.html; then
+          if grep -q "xxxx" page.html; then
             now="vacio"
           else
             now="hay_destinos"
