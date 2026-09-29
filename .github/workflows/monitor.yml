@@ -23,7 +23,7 @@ jobs:
           curl -sL --max-time 30 -A "Mozilla/5.0" -o page.html "$URL" || exit 0
           [ -s page.html ] || exit 0
 
-          if grep -q "xxxx" page.html; then
+          if grep -q "No tenemos destinos disponibles" page.html; then
             now="vacio"
           else
             now="hay_destinos"
@@ -33,6 +33,7 @@ jobs:
           if [ "$now" != "$prev" ]; then
             echo "$now" > state.txt
             if [ "$now" = "hay_destinos" ]; then
+              echo "NOTIFICAR=si" >> "$GITHUB_ENV"
               curl -s "https://api.telegram.org/bot$TOKEN/sendMessage" \
                 -d chat_id="$CHAT_ID" \
                 -d text="🎉 Turismo Mujer cargó destinos: $URL" >/dev/null
@@ -43,3 +44,17 @@ jobs:
             git commit -m "estado: $now"
             git push
           fi
+
+      - name: Enviar correo
+        if: env.NOTIFICAR == 'si'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USER }}
+          password: ${{ secrets.MAIL_APP_PASSWORD }}
+          subject: Turismo Mujer cargó destinos
+          to: ${{ secrets.MAIL_TO }}
+          from: Monitor <${{ secrets.MAIL_USER }}>
+          body: Revisa https://turismomujer.sernatur.cl/
