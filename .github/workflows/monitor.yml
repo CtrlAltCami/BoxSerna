@@ -20,10 +20,10 @@ jobs:
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           URL="https://turismomujer.sernatur.cl/"
-          html=$(curl -sL --max-time 30 -A "Mozilla/5.0" "$URL") || exit 0
-          [ -z "$html" ] && exit 0
+          curl -sL --max-time 30 -A "Mozilla/5.0" -o page.html "$URL" || exit 0
+          [ -s page.html ] || exit 0
 
-          if echo "$html" | grep -q "No tenemos destinos disponibles"; then
+          if grep -q "No tenemos destinos disponibles" page.html; then
             now="vacio"
           else
             now="hay_destinos"
